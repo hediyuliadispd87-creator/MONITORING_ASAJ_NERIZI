@@ -76,6 +76,12 @@
     top: 0;
     z-index: 100;
     flex-wrap: wrap;
+    cursor: pointer;
+    transition: background-color .2s;
+  }
+
+  .topbar:hover {
+    background: #131313;
   }
 
   .topbar-left {
@@ -1020,7 +1026,7 @@
 <!-- ╔══════════════════════════════╗ -->
 <!-- ║         TOPBAR               ║ -->
 <!-- ╚══════════════════════════════╝ -->
-<header class="topbar" role="banner">
+<header class="topbar" role="banner" onclick="goToHome()" title="Klik untuk kembali ke halaman utama">
   <div class="topbar-left">
     <div class="brand-dot" id="brandLogo" aria-hidden="true">
       <!-- Logo akan diisi dari GAS sheet Cover kolom C (header: logo) -->
@@ -1610,6 +1616,22 @@ function exportCSV() {
   a.href = url; a.download = panelRoom.ruang.replace(/\s/g,'_') + '_monitoring.csv';
   a.click(); URL.revokeObjectURL(url);
   showToast('CSV diunduh: ' + a.download);
+}
+
+// ═══════════════════════════════════════════
+//  GO TO HOME — Reset ke halaman utama
+// ═══════════════════════════════════════════
+function goToHome() {
+  // Tutup panel jika terbuka
+  closePanel();
+  
+  // Reset semua filter
+  document.getElementById('selMapel').value = '';
+  document.getElementById('searchRoom').value = '';
+  document.getElementById('selStatus').value = '';
+  
+  // Render ulang dengan data asli
+  renderAll();
 }
 
 // ═══════════════════════════════════════════
