@@ -77,7 +77,7 @@
     z-index: 100;
     flex-wrap: wrap;
     cursor: pointer;
-    transition: background-color .2s;
+    transition: background-color .2s ease;
   }
 
   .topbar:hover {
@@ -1596,6 +1596,24 @@ function renderStudentList() {
 }
 
 // ═══════════════════════════════════════════
+//  GO TO HOME — Reset ke halaman utama
+// ═══════════════════════════════════════════
+function goToHome() {
+  // Tutup panel jika terbuka
+  closePanel();
+  
+  // Reset semua filter ke nilai awal
+  document.getElementById('selMapel').value = '';
+  document.getElementById('searchRoom').value = '';
+  document.getElementById('selStatus').value = '';
+  document.getElementById('panelSearch').value = '';
+  document.getElementById('panelStatus').value = '';
+  
+  // Render ulang dengan data lengkap
+  renderAll();
+}
+
+// ═══════════════════════════════════════════
 //  EXPORT CSV
 // ═══════════════════════════════════════════
 function exportCSV() {
@@ -1616,22 +1634,6 @@ function exportCSV() {
   a.href = url; a.download = panelRoom.ruang.replace(/\s/g,'_') + '_monitoring.csv';
   a.click(); URL.revokeObjectURL(url);
   showToast('CSV diunduh: ' + a.download);
-}
-
-// ═══════════════════════════════════════════
-//  GO TO HOME — Reset ke halaman utama
-// ═══════════════════════════════════════════
-function goToHome() {
-  // Tutup panel jika terbuka
-  closePanel();
-  
-  // Reset semua filter
-  document.getElementById('selMapel').value = '';
-  document.getElementById('searchRoom').value = '';
-  document.getElementById('selStatus').value = '';
-  
-  // Render ulang dengan data asli
-  renderAll();
 }
 
 // ═══════════════════════════════════════════
