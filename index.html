@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Monitoring Ujian — Real-time</title>
+<title>Monitoring Ujian — Semua Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -62,6 +62,7 @@
     z-index: 1;
   }
 
+  /* ── TOPBAR ── */
   .topbar {
     background: #0d0d0d;
     border-bottom: 1px solid var(--border);
@@ -75,11 +76,7 @@
     top: 0;
     z-index: 100;
     flex-wrap: wrap;
-    cursor: pointer;
-    transition: background-color .2s ease;
   }
-
-  .topbar:hover { background: #131313; }
 
   .topbar-left {
     display: flex;
@@ -87,7 +84,9 @@
     gap: 12px;
     min-width: 0;
     flex: 1;
+    cursor: pointer;
   }
+  .topbar-left:hover .brand-dot { border-color: var(--border2); }
 
   .brand-dot {
     width: 48px;
@@ -102,6 +101,7 @@
     overflow: hidden;
     position: relative;
     z-index: 2;
+    transition: border-color .2s;
   }
 
   .brand-dot svg {
@@ -179,6 +179,70 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ── LAB TABS ── */
+  .lab-tabs-wrap {
+    background: #0d0d0d;
+    border-bottom: 1px solid var(--border);
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-shrink: 0;
+    position: sticky;
+    top: calc(68px + var(--safe-top));
+    z-index: 99;
+  }
+  .lab-tabs-wrap::-webkit-scrollbar { display: none; }
+
+  .lab-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color .15s, border-color .15s;
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .lab-tab:hover { color: var(--text2); }
+
+  .lab-tab.active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+  }
+
+  .lab-tab .tab-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  .tab-count {
+    font-size: 10px;
+    background: var(--surface2);
+    color: var(--text3);
+    border-radius: 10px;
+    padding: 1px 5px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 400;
+  }
+
+  .lab-tab.active .tab-count {
+    background: var(--green-bg);
+    color: var(--green);
+  }
+
+  /* ── MAIN ── */
   main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
 
   .summary {
@@ -294,14 +358,14 @@
 
   .overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6); z-index: 98; backdrop-filter: blur(2px);
+    background: rgba(0,0,0,0.6); z-index: 198; backdrop-filter: blur(2px);
   }
   .overlay.open { display: block; }
 
   .panel {
     position: fixed; top: 0; right: -100%; width: 100%; max-width: 420px;
     height: 100vh; background: #0d0d0d; border-left: 1px solid var(--border);
-    z-index: 99; display: flex; flex-direction: column;
+    z-index: 199; display: flex; flex-direction: column;
     transition: right .3s cubic-bezier(.34,1.2,.64,1);
     box-shadow: -4px 0 32px rgba(0,0,0,0.6);
   }
@@ -458,6 +522,8 @@
     .last-update { display: block; font-size: 11px; }
     .btn { padding: 7px 14px; font-size: 13px; }
     .btn svg { width: 15px; height: 15px; }
+    .lab-tabs-wrap { padding: 0 24px; top: 56px; }
+    .lab-tab { font-size: 13px; padding: 12px 16px; }
     .summary { grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px 24px; }
     .metric { padding: 16px 18px; }
     .metric-label { font-size: 11px; }
@@ -501,14 +567,14 @@
 <body>
 
 <!-- TOPBAR -->
-<header class="topbar" role="banner" onclick="goToHome()" title="Klik untuk kembali ke halaman utama">
-  <div class="topbar-left">
+<header class="topbar" role="banner">
+  <div class="topbar-left" onclick="goToHome()" title="Klik untuk kembali ke halaman utama">
     <div class="brand-dot" id="brandLogo" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
     <div class="brand-info">
       <div class="brand-name">Monitoring Ujian</div>
-      <div class="brand-sub">Status real-time per ruangan</div>
+      <div class="brand-sub" id="labSubtitle">Status real-time per ruangan</div>
     </div>
   </div>
   <div class="topbar-right">
@@ -529,6 +595,35 @@
     </button>
   </div>
 </header>
+
+<!-- LAB TABS -->
+<nav class="lab-tabs-wrap" role="tablist" aria-label="Pilih Lab">
+  <div class="lab-tab active" role="tab" aria-selected="true"  data-lab="0" onclick="switchLab(0)">
+    <span class="tab-dot"></span>
+    Lab Umum
+    <span class="tab-count" id="tc0">—</span>
+  </div>
+  <div class="lab-tab" role="tab" aria-selected="false" data-lab="1" onclick="switchLab(1)">
+    <span class="tab-dot"></span>
+    Lab 1–4
+    <span class="tab-count" id="tc1">—</span>
+  </div>
+  <div class="lab-tab" role="tab" aria-selected="false" data-lab="2" onclick="switchLab(2)">
+    <span class="tab-dot"></span>
+    Lab 5–8
+    <span class="tab-count" id="tc2">—</span>
+  </div>
+  <div class="lab-tab" role="tab" aria-selected="false" data-lab="3" onclick="switchLab(3)">
+    <span class="tab-dot"></span>
+    Lab 9–12
+    <span class="tab-count" id="tc3">—</span>
+  </div>
+  <div class="lab-tab" role="tab" aria-selected="false" data-lab="4" onclick="switchLab(4)">
+    <span class="tab-dot"></span>
+    Lab 13–16
+    <span class="tab-count" id="tc4">—</span>
+  </div>
+</nav>
 
 <!-- SUMMARY -->
 <main>
@@ -652,26 +747,59 @@
 
 <script>
 // ════════════════════════════════════════════════════
-//  KONFIGURASI — sesuaikan dua baris ini saja
+//  KONFIGURASI 5 LAB
 // ════════════════════════════════════════════════════
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyuuYX2x8nL4oKVcLf5lZq_L8_4vX5rJqMzFwzyzPyZdedcbbS5zsi__MbJ1S4s1WLW/exec';
-const FB_URL  = 'https://monitoring-ujian-asaj-default-rtdb.asia-southeast1.firebasedatabase.app';
+const LABS = [
+  {
+    label   : 'Lab Umum',
+    GAS_URL : 'https://script.google.com/macros/s/AKfycbyKi-p7XerQPRMYy1wpv5kQsJulWyLdsT_pJRnJzYxeoBKZMqp4PPZGp-Lzgi-RRGE/exec',
+    FB_URL  : 'https://sistemujuajiannerizi-default-rtdb.asia-southeast1.firebasedatabase.app/'
+  },
+  {
+    label   : 'Lab 1–4',
+    GAS_URL : 'https://script.google.com/macros/s/AKfycbz6S26c2XqD-um3vILalykRIWINgZB8TaosnhIVuSBye5NQ-FYTxg6MvjUkRy06u5OPGg/exec',
+    FB_URL  : 'https://sistemujuajiannerizi1234-default-rtdb.asia-southeast1.firebasedatabase.app/'
+  },
+  {
+    label   : 'Lab 5–8',
+    GAS_URL : 'https://script.google.com/macros/s/AKfycbyMoBJd5ivWGjQzTSA5Qp0Y4oldEIJSqvfl0qIt2Pv7JZi_4EPz1hy9CrbKP-Jrb3_8/exec',
+    FB_URL  : 'https://sistemujuajiannerizi5678-default-rtdb.asia-southeast1.firebasedatabase.app/'
+  },
+  {
+    label   : 'Lab 9–12',
+    GAS_URL : 'https://script.google.com/macros/s/AKfycbzKvBqX3kFcOre9gfy8fItZoVlRklw7D7eBuO_nD2ZF0plBiMZPSRNMSSVTWuVqCNYp/exec',
+    FB_URL  : 'https://sistemujuajiannerizi9-12-default-rtdb.asia-southeast1.firebasedatabase.app/'
+  },
+  {
+    label   : 'Lab 13–16',
+    GAS_URL : 'https://script.google.com/macros/s/AKfycbzSbm12ASbw-2Yip9lBX6sEe_iqgwlKicn6ggldzivLHDQ_8Q1AO5Ut8UJQR8IlT5K5Xg/exec',
+    FB_URL  : 'https://sistemujuajiannerizi13-16-default-rtdb.asia-southeast1.firebasedatabase.app/'
+  }
+];
+
 const LOGO_URL = 'https://drive.google.com/uc?export=view&id=1yTZeAuc0NtiGVd3MT_vTj1E2F4VmOLhL';
 
 // ════════════════════════════════════════════════════
-//  STATE
+//  STATE PER-LAB (di-cache independen)
 // ════════════════════════════════════════════════════
-let pesertaData   = [];   // dari GAS — di-cache, tidak di-refetch tiap siklus
-let hasilData     = [];   // dari Firebase — diambil tiap 5 detik
-let pesertaCached = false;
-let panelRoom     = null;
-let autoTimer     = null;
-let logoUrl       = null;
+const labState = LABS.map(function() {
+  return {
+    pesertaData   : [],
+    hasilData     : [],
+    pesertaCached : false,
+    roomCount     : 0
+  };
+});
+
+let currentLab = 0;
+let panelRoom  = null;
+let autoTimer  = null;
+let logoUrl    = null;
 
 // ════════════════════════════════════════════════════
-//  DEMO DATA (fallback jika GAS & Firebase sama-sama gagal)
+//  DEMO DATA
 // ════════════════════════════════════════════════════
-const DEMO_ROOMS = Array.from({length:20}, (_,i) => 'Ruang ' + (i + 1));
+const DEMO_ROOMS = Array.from({length:20}, function(_,i){ return 'Ruang ' + (i + 1); });
 const DEMO_NAMES = [
   'Andi Saputra','Budi Santoso','Citra Dewi','Dian Pratiwi','Eko Wahyudi',
   'Fajar Nugroho','Gita Lestari','Hendra Kurniawan','Indah Rahayu','Joko Susilo',
@@ -685,9 +813,9 @@ const DEMO_MAPEL = ['Matematika','Bahasa Indonesia','IPA'];
 function buildDemo() {
   const p = [], h = [];
   let no = 1;
-  DEMO_ROOMS.forEach(r => {
+  DEMO_ROOMS.forEach(function(r) {
     const cnt = 20 + Math.floor(Math.random() * 11);
-    for (let i = 0; i < cnt; i++) {
+    for (var i = 0; i < cnt; i++) {
       const mapel = DEMO_MAPEL[Math.floor(Math.random() * DEMO_MAPEL.length)];
       p.push({
         'no peserta'    : String(no).padStart(4,'0'),
@@ -702,9 +830,9 @@ function buildDemo() {
     }
   });
   const doneSet = new Set();
-  p.forEach(s => { if (Math.random() < 0.62) doneSet.add(s['no peserta']); });
-  doneSet.forEach(np => {
-    const s = p.find(x => x['no peserta'] === np);
+  p.forEach(function(s) { if (Math.random() < 0.62) doneSet.add(s['no peserta']); });
+  doneSet.forEach(function(np) {
+    const s = p.find(function(x){ return x['no peserta'] === np; });
     if (!s) return;
     const hh = Math.floor(Math.random()*3)+8;
     const mm = String(Math.floor(Math.random()*60)).padStart(2,'0');
@@ -720,8 +848,7 @@ function buildDemo() {
 }
 
 // ════════════════════════════════════════════════════
-//  FLATTEN FIREBASE → format internal hasilData
-//  Firebase: { kodeMapel: { noPeserta: { nilai, nama, ... } } }
+//  FLATTEN FIREBASE
 // ════════════════════════════════════════════════════
 function flattenFirebase(raw) {
   const out = [];
@@ -767,10 +894,37 @@ function applyLogoToPanel() {
 }
 
 // ════════════════════════════════════════════════════
+//  SWITCH LAB
+// ════════════════════════════════════════════════════
+function switchLab(idx) {
+  if (idx === currentLab) return;
+  currentLab = idx;
+  closePanel();
+
+  // Update tab UI
+  document.querySelectorAll('.lab-tab').forEach(function(el, i) {
+    el.classList.toggle('active', i === idx);
+    el.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+  });
+
+  // Update subtitle
+  document.getElementById('labSubtitle').textContent = LABS[idx].label + ' — real-time';
+
+  // Reset filter
+  document.getElementById('selMapel').value  = '';
+  document.getElementById('searchRoom').value = '';
+  document.getElementById('selStatus').value  = '';
+
+  // Reload data (paksa reload peserta jika belum di-cache)
+  loadData();
+}
+
+// ════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', function() {
   loadLogo();
+  document.getElementById('labSubtitle').textContent = LABS[0].label + ' — real-time';
   loadData();
   startAutoRefresh();
   updateButtonLabels();
@@ -787,60 +941,70 @@ function updateButtonLabels() {
 
 // ════════════════════════════════════════════════════
 //  LOAD DATA UTAMA
-//  • Peserta  → GAS  (hanya sekali, lalu di-cache)
-//  • Hasil    → Firebase (tiap 5 detik, cepat)
 // ════════════════════════════════════════════════════
 async function loadData() {
   setRefreshState(true);
+  const lab   = LABS[currentLab];
+  const state = labState[currentLab];
 
-  // ── STEP 1: Peserta dari GAS (sekali saja) ──
-  if (!pesertaCached) {
+  // ── STEP 1: Peserta dari GAS (sekali saja per lab) ──
+  if (!state.pesertaCached) {
     try {
-      const res  = await fetch(GAS_URL + '?action=getMonitoring');
+      const res  = await fetch(lab.GAS_URL + '?action=getMonitoring');
       const json = await res.json();
       if (json.success && Array.isArray(json.peserta) && json.peserta.length > 0) {
-        pesertaData   = json.peserta;
-        pesertaCached = true;
+        state.pesertaData   = json.peserta;
+        state.pesertaCached = true;
         populateMapelSelect();
-        showToast('Data peserta dimuat: ' + pesertaData.length + ' siswa');
+        showToast('Data peserta dimuat: ' + state.pesertaData.length + ' siswa');
       }
     } catch(e) {
-      console.warn('[GAS] Peserta gagal:', e.message);
+      console.warn('[GAS ' + lab.label + '] Peserta gagal:', e.message);
     }
   }
 
   // ── STEP 2: Hasil dari Firebase (tiap siklus) ──
   try {
-    const fbRes  = await fetch(FB_URL + '/hasil.json');
-    const fbRaw  = await fbRes.json();
-    hasilData    = flattenFirebase(fbRaw);
+    const fbRes = await fetch(lab.FB_URL + '/hasil.json');
+    const fbRaw = await fbRes.json();
+    state.hasilData = flattenFirebase(fbRaw);
     document.getElementById('lastTime').textContent = now();
   } catch(e) {
-    console.warn('[Firebase] Hasil gagal:', e.message);
+    console.warn('[Firebase ' + lab.label + '] Hasil gagal:', e.message);
     document.getElementById('lastTime').textContent = 'FB ERR ' + now();
   }
 
   // ── FALLBACK: demo jika semua gagal ──
-  if (!pesertaCached && pesertaData.length === 0) {
+  if (!state.pesertaCached && state.pesertaData.length === 0) {
     const demo  = buildDemo();
-    pesertaData = demo.p;
-    hasilData   = demo.h;
+    state.pesertaData = demo.p;
+    state.hasilData   = demo.h;
     document.getElementById('lastTime').textContent = 'DEMO — ' + now();
     showToast('Mode demo aktif — GAS tidak terjangkau');
   }
 
+  // Update tab count badge untuk ALL labs (hitung cepat dari cache)
+  updateTabCounts();
+
   renderAll();
   setRefreshState(false);
+}
+
+function updateTabCounts() {
+  LABS.forEach(function(_, i) {
+    const s = labState[i];
+    const total = s.pesertaData.length;
+    document.getElementById('tc' + i).textContent = total > 0 ? total.toLocaleString('id') : '—';
+  });
 }
 
 function now() {
   return new Date().toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 
-// Manual refresh: reset cache peserta supaya ikut reload
 function manualRefresh(e) {
   if (e) e.stopPropagation();
-  pesertaCached = false;
+  labState[currentLab].pesertaCached = false;
   loadData();
 }
 
@@ -852,16 +1016,17 @@ function setRefreshState(loading) {
 
 function startAutoRefresh() {
   clearInterval(autoTimer);
-  autoTimer = setInterval(loadData, 5000); // 5 detik — Firebase ringan, aman
+  autoTimer = setInterval(loadData, 5000);
 }
 
 // ════════════════════════════════════════════════════
 //  POPULATE MAPEL SELECT
 // ════════════════════════════════════════════════════
 function populateMapelSelect() {
-  const sel  = document.getElementById('selMapel');
-  const cur  = sel.value;
-  const list = [...new Set(pesertaData.map(r => r['mata pelajaran']).filter(Boolean))].sort();
+  const state = labState[currentLab];
+  const sel   = document.getElementById('selMapel');
+  const cur   = sel.value;
+  const list  = [...new Set(state.pesertaData.map(function(r){ return r['mata pelajaran']; }).filter(Boolean))].sort();
   sel.innerHTML = '<option value="">Semua mata pelajaran</option>';
   list.forEach(function(m) {
     const o = document.createElement('option');
@@ -871,39 +1036,31 @@ function populateMapelSelect() {
   });
 }
 
-function onMapelChange() {
-  // Saat mapel berubah, tidak perlu reload GAS — peserta sudah di-cache semua
-  applyFilter();
-}
+function onMapelChange() { applyFilter(); }
 
 // ════════════════════════════════════════════════════
 //  BUILD ROOM DATA
 // ════════════════════════════════════════════════════
 function buildRooms() {
-  const mapel = document.getElementById('selMapel').value;
+  const state  = labState[currentLab];
+  const mapel  = document.getElementById('selMapel').value;
 
-  // Filter peserta berdasarkan mapel yang dipilih
-  let peserta = pesertaData;
+  let peserta = state.pesertaData;
   if (mapel) {
     peserta = peserta.filter(function(s) {
       return s['mata pelajaran'] === mapel || s['kode'] === mapel;
     });
   }
 
-  // Buat doneMap dari hasilData Firebase
-  // Key: no peserta, Value: object hasil
   const doneMap = {};
-  hasilData.forEach(function(h) {
+  state.hasilData.forEach(function(h) {
     const cocok = !mapel ||
       h['mata pelajaran'] === mapel ||
       h['kode'] === mapel ||
       h['kode mata pelajaran'] === mapel;
-    if (cocok) {
-      doneMap[h['no peserta']] = h;
-    }
+    if (cocok) { doneMap[h['no peserta']] = h; }
   });
 
-  // Kelompokkan peserta per ruang
   const roomMap = {};
   peserta.forEach(function(s) {
     const r = s['ruang'] || 'Tanpa Ruang';
@@ -912,13 +1069,13 @@ function buildRooms() {
   });
 
   const rooms = Object.values(roomMap).map(function(r) {
-    const done = r.siswa.filter(function(s) { return !!doneMap[s['no peserta']]; });
-    const todo = r.siswa.filter(function(s) { return !doneMap[s['no peserta']]; });
+    const done = r.siswa.filter(function(s){ return !!doneMap[s['no peserta']]; });
+    const todo = r.siswa.filter(function(s){ return !doneMap[s['no peserta']]; });
     const pct  = r.siswa.length ? Math.round(done.length / r.siswa.length * 100) : 0;
 
     const nilaiArr = done
-      .map(function(s) { return Number((doneMap[s['no peserta']] || {}).hasil) || 0; })
-      .filter(function(n) { return n > 0; });
+      .map(function(s){ return Number((doneMap[s['no peserta']] || {}).hasil) || 0; })
+      .filter(function(n){ return n > 0; });
     const rataRoom = nilaiArr.length
       ? Math.round(nilaiArr.reduce(function(a,b){return a+b;},0) / nilaiArr.length)
       : 0;
@@ -926,7 +1083,6 @@ function buildRooms() {
     return { ruang: r.ruang, siswa: r.siswa, done, todo, pct, doneMap, rataRoom };
   });
 
-  // Urutkan berdasarkan nomor ruang
   rooms.sort(function(a, b) {
     const na = a.ruang.replace(/\D/g,'').padStart(5,'0') + a.ruang;
     const nb = b.ruang.replace(/\D/g,'').padStart(5,'0') + b.ruang;
@@ -940,6 +1096,7 @@ function buildRooms() {
 //  RENDER ALL
 // ════════════════════════════════════════════════════
 function renderAll() {
+  const state = labState[currentLab];
   populateMapelSelect();
   const rooms = buildRooms();
   const total = rooms.reduce(function(s,r){return s+r.siswa.length;}, 0);
@@ -947,7 +1104,7 @@ function renderAll() {
   const todo  = total - done;
   const pct   = total ? Math.round(done / total * 100) : 0;
 
-  const nilaiAll = hasilData.map(function(h){return Number(h.hasil)||0;}).filter(function(n){return n>0;});
+  const nilaiAll = state.hasilData.map(function(h){return Number(h.hasil)||0;}).filter(function(n){return n>0;});
   const rata     = nilaiAll.length
     ? Math.round(nilaiAll.reduce(function(a,b){return a+b;},0) / nilaiAll.length)
     : 0;
@@ -961,7 +1118,6 @@ function renderAll() {
 
   applyFilter();
 
-  // Perbarui panel yang sedang terbuka
   if (panelRoom) {
     const updated = rooms.find(function(r){return r.ruang === panelRoom.ruang;});
     if (updated) { panelRoom = updated; renderStudentList(); }
@@ -978,9 +1134,9 @@ function applyFilter() {
 
   const filtered = rooms.filter(function(r) {
     if (q && !r.ruang.toLowerCase().includes(q)) return false;
-    if (sf === 'done'    && r.pct < 100)                      return false;
-    if (sf === 'partial' && (r.pct === 0 || r.pct === 100))   return false;
-    if (sf === 'none'    && r.pct > 0)                         return false;
+    if (sf === 'done'    && r.pct < 100)                    return false;
+    if (sf === 'partial' && (r.pct === 0 || r.pct === 100)) return false;
+    if (sf === 'none'    && r.pct > 0)                       return false;
     return true;
   });
 
@@ -1136,13 +1292,14 @@ function goToHome() {
 // ════════════════════════════════════════════════════
 function exportCSV() {
   if (!panelRoom) return;
-  const header = ['No Peserta','Nama','Kelas','Sekolah','Ruang','Status','Nilai','Waktu Submit'];
+  const header = ['No Peserta','Nama','Kelas','Sekolah','Ruang','Lab','Status','Nilai','Waktu Submit'];
+  const labLabel = LABS[currentLab].label;
   const rows = panelRoom.siswa.map(function(s) {
     const done = !!panelRoom.doneMap[s['no peserta']];
     const h    = panelRoom.doneMap[s['no peserta']] || {};
     return [
       s['no peserta'], s.nama, s.kelas||'', s.sekolah||'', s.ruang||'',
-      done?'Selesai':'Belum', h.hasil||'', h['waktu submit']||''
+      labLabel, done?'Selesai':'Belum', h.hasil||'', h['waktu submit']||''
     ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
   });
   const csv  = [header.join(',')].concat(rows).join('\n');
@@ -1150,7 +1307,7 @@ function exportCSV() {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = panelRoom.ruang.replace(/\s/g,'_') + '_monitoring.csv';
+  a.download = panelRoom.ruang.replace(/\s/g,'_') + '_' + labLabel.replace(/\s/g,'_') + '_monitoring.csv';
   a.click();
   URL.revokeObjectURL(url);
   showToast('CSV diunduh: ' + a.download);
