@@ -294,7 +294,7 @@
   }
 
   .rooms-wrap {
-    padding: 0 12px 12px; flex: 1;
+    padding: 0 12px 80px; flex: 1;
     overflow-y: auto; display: flex; flex-direction: column;
   }
 
@@ -503,7 +503,7 @@
 
   .toast {
     position: fixed;
-    bottom: calc(24px + var(--safe-bottom));
+    bottom: calc(80px + var(--safe-bottom));
     left: 50%; transform: translateX(-50%) translateY(100px);
     background: #f0ede8; color: #0a0a0a;
     padding: 10px 16px; border-radius: 10px; font-size: 12px;
@@ -511,6 +511,104 @@
     white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.5); max-width: 90%;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── PENGAWAS FLOATING BAR ── */
+  .pengawas-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 190;
+    padding: 10px 16px calc(10px + var(--safe-bottom));
+    background: linear-gradient(to top, #0a0a0a 60%, transparent);
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .pengawas-btn {
+    pointer-events: all;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 14px;
+    background: #1a1a1a;
+    border: 1px solid rgba(91,156,246,0.35);
+    color: var(--blue);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(91,156,246,0.1);
+    transition: background .2s, border-color .2s, box-shadow .2s, transform .15s;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .pengawas-btn:hover {
+    background: #1f2a3a;
+    border-color: rgba(91,156,246,0.6);
+    box-shadow: 0 6px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(91,156,246,0.2), 0 0 20px rgba(91,156,246,0.1);
+    transform: translateY(-1px);
+  }
+
+  .pengawas-btn:active {
+    transform: translateY(0);
+  }
+
+  .pengawas-btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .pengawas-icon-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--blue-bg);
+    border: 1px solid rgba(91,156,246,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .pengawas-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+  }
+
+  .pengawas-label-main {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .pengawas-label-sub {
+    font-size: 9px;
+    color: var(--text3);
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    line-height: 1;
+  }
+
+  .pengawas-arrow {
+    margin-left: 4px;
+    opacity: 0.5;
+    transition: opacity .2s, transform .2s;
+  }
+
+  .pengawas-btn:hover .pengawas-arrow {
+    opacity: 1;
+    transform: translateX(2px);
+  }
 
   /* ── TABLET ── */
   @media (min-width: 768px) {
@@ -533,7 +631,7 @@
     .filter-bar select,
     .filter-bar input[type=search] { padding: 7px 12px; font-size: 13px; height: 34px; }
     .filter-count { width: auto; text-align: right; font-size: 12px; margin-left: auto; order: unset; }
-    .rooms-wrap { padding: 0 24px 32px; }
+    .rooms-wrap { padding: 0 24px 80px; }
     .rooms-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
     .room-card { padding: 16px; }
     .room-name { font-size: 13px; }
@@ -556,6 +654,10 @@
     .panel-foot { padding: 10px 20px; font-size: 11px; gap: 12px; }
     .export-btn { font-size: 11px; padding: 4px 10px; gap: 4px; }
     .export-btn svg { width: 12px; height: 12px; }
+    .pengawas-btn { padding: 12px 28px; font-size: 14px; border-radius: 16px; }
+    .pengawas-icon-wrap { width: 30px; height: 30px; }
+    .pengawas-label-main { font-size: 14px; }
+    .pengawas-label-sub { font-size: 10px; }
   }
 
   @media (min-width: 1200px) {
@@ -600,27 +702,27 @@
 <nav class="lab-tabs-wrap" role="tablist" aria-label="Pilih Lab">
   <div class="lab-tab active" role="tab" aria-selected="true"  data-lab="0" onclick="switchLab(0)">
     <span class="tab-dot"></span>
-    Lab Umum
+    Ruang 17,18,19,20
     <span class="tab-count" id="tc0">—</span>
   </div>
   <div class="lab-tab" role="tab" aria-selected="false" data-lab="1" onclick="switchLab(1)">
     <span class="tab-dot"></span>
-    Lab 1–4
+    Ruang 1,2,3,4
     <span class="tab-count" id="tc1">—</span>
   </div>
   <div class="lab-tab" role="tab" aria-selected="false" data-lab="2" onclick="switchLab(2)">
     <span class="tab-dot"></span>
-    Lab 5–8
+    Ruang 5,6,7,8
     <span class="tab-count" id="tc2">—</span>
   </div>
   <div class="lab-tab" role="tab" aria-selected="false" data-lab="3" onclick="switchLab(3)">
     <span class="tab-dot"></span>
-    Lab 9–12
+    Ruang 9,10,11,12
     <span class="tab-count" id="tc3">—</span>
   </div>
   <div class="lab-tab" role="tab" aria-selected="false" data-lab="4" onclick="switchLab(4)">
     <span class="tab-dot"></span>
-    Lab 13–16
+    Ruang 13,14,15,16
     <span class="tab-count" id="tc4">—</span>
   </div>
 </nav>
@@ -742,6 +844,33 @@
     </button>
   </div>
 </aside>
+
+<!-- PENGAWAS FLOATING BUTTON -->
+<div class="pengawas-bar" role="complementary" aria-label="Akses Panel Pengawas">
+  <a
+    href="https://hediyuliadispd87-creator.github.io/Panel_Pengawas_ASAJ_nerizi/"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="pengawas-btn"
+    aria-label="Buka Panel Pengawas"
+  >
+    <div class="pengawas-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+    <div class="pengawas-label">
+      <span class="pengawas-label-main">PENGAWAS</span>
+      <span class="pengawas-label-sub">Buka panel pengawas</span>
+    </div>
+    <svg class="pengawas-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  </a>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -901,21 +1030,17 @@ function switchLab(idx) {
   currentLab = idx;
   closePanel();
 
-  // Update tab UI
   document.querySelectorAll('.lab-tab').forEach(function(el, i) {
     el.classList.toggle('active', i === idx);
     el.setAttribute('aria-selected', i === idx ? 'true' : 'false');
   });
 
-  // Update subtitle
   document.getElementById('labSubtitle').textContent = LABS[idx].label + ' — real-time';
 
-  // Reset filter
   document.getElementById('selMapel').value  = '';
   document.getElementById('searchRoom').value = '';
   document.getElementById('selStatus').value  = '';
 
-  // Reload data (paksa reload peserta jika belum di-cache)
   loadData();
 }
 
@@ -947,7 +1072,6 @@ async function loadData() {
   const lab   = LABS[currentLab];
   const state = labState[currentLab];
 
-  // ── STEP 1: Peserta dari GAS (sekali saja per lab) ──
   if (!state.pesertaCached) {
     try {
       const res  = await fetch(lab.GAS_URL + '?action=getMonitoring');
@@ -963,7 +1087,6 @@ async function loadData() {
     }
   }
 
-  // ── STEP 2: Hasil dari Firebase (tiap siklus) ──
   try {
     const fbRes = await fetch(lab.FB_URL + '/hasil.json');
     const fbRaw = await fbRes.json();
@@ -974,7 +1097,6 @@ async function loadData() {
     document.getElementById('lastTime').textContent = 'FB ERR ' + now();
   }
 
-  // ── FALLBACK: demo jika semua gagal ──
   if (!state.pesertaCached && state.pesertaData.length === 0) {
     const demo  = buildDemo();
     state.pesertaData = demo.p;
@@ -983,9 +1105,7 @@ async function loadData() {
     showToast('Mode demo aktif — GAS tidak terjangkau');
   }
 
-  // Update tab count badge untuk ALL labs (hitung cepat dari cache)
   updateTabCounts();
-
   renderAll();
   setRefreshState(false);
 }
